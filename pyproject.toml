@@ -1,0 +1,22 @@
+[build-system]
+requires = ["setuptools>=42", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "kpoplib"
+version = "0.1.0"
+description = "Python library to suppress exceptions in expressions"
+readme = { file = "README.md", content-type = "text/markdown" }
+dependencies = []
+license = { text = "Apache 2.0" }
+
+[[project.authors]]
+name = "Grant Jenks"
+email = "contact@grantjenks.com"
+
+[project.urls]
+Homepage = "https://github.com/grantjenks/python-kpop"
+
+[tool.setuptools]
+package-dir = { kpop = "src/kpop" }
+packages = ["kpop"]
