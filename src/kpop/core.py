@@ -1,5 +1,7 @@
 class Bubble:
-    def __init__(self, value, default=None, error=None, history=None, error_history=None):
+    def __init__(
+        self, value, default=None, error=None, history=None, error_history=None
+    ):
         """
         Initialize the proxy (k-pop bubble).
 
@@ -32,84 +34,149 @@ class Bubble:
         Returns:
             A tuple (new_history, new_error_history).
         """
-        record = {"op": op, "detail": detail, "result": result, "exception": exception}
+        record = {'op': op, 'detail': detail, 'result': result, 'exception': exception}
         new_history = self._history + [record]
-        new_error_history = self._error_history if self._error is not None else self._error_history + [record]
+        new_error_history = (
+            self._error_history
+            if self._error is not None
+            else self._error_history + [record]
+        )
         return new_history, new_error_history
 
     def __getattr__(self, attr):
         if self._error is not None:
-            new_history, new_error_history = self._record("getattr", attr, None, self._error)
-            return Bubble(None, error=self._error, default=self._default, history=new_history, error_history=new_error_history)
+            new_history, new_error_history = self._record(
+                'getattr', attr, None, self._error
+            )
+            return Bubble(
+                None,
+                error=self._error,
+                default=self._default,
+                history=new_history,
+                error_history=new_error_history,
+            )
 
         try:
             result = getattr(self._value, attr)
-            new_history, new_error_history = self._record("getattr", attr, result, None)
+            new_history, new_error_history = self._record('getattr', attr, result, None)
         except Exception as e:
-            new_history, new_error_history = self._record("getattr", attr, None, e)
-            return Bubble(None, error=e, default=self._default, history=new_history, error_history=new_error_history)
+            new_history, new_error_history = self._record('getattr', attr, None, e)
+            return Bubble(
+                None,
+                error=e,
+                default=self._default,
+                history=new_history,
+                error_history=new_error_history,
+            )
 
-        return Bubble(result, default=self._default, history=new_history, error_history=new_error_history)
+        return Bubble(
+            result,
+            default=self._default,
+            history=new_history,
+            error_history=new_error_history,
+        )
 
     def __getitem__(self, key):
         if self._error is not None:
-            new_history, new_error_history = self._record("getitem", key, None, self._error)
-            return Bubble(None, error=self._error, default=self._default, history=new_history, error_history=new_error_history)
+            new_history, new_error_history = self._record(
+                'getitem', key, None, self._error
+            )
+            return Bubble(
+                None,
+                error=self._error,
+                default=self._default,
+                history=new_history,
+                error_history=new_error_history,
+            )
 
         try:
             result = self._value[key]
-            new_history, new_error_history = self._record("getitem", key, result, None)
+            new_history, new_error_history = self._record('getitem', key, result, None)
         except Exception as e:
-            new_history, new_error_history = self._record("getitem", key, None, e)
-            return Bubble(None, error=e, default=self._default, history=new_history, error_history=new_error_history)
+            new_history, new_error_history = self._record('getitem', key, None, e)
+            return Bubble(
+                None,
+                error=e,
+                default=self._default,
+                history=new_history,
+                error_history=new_error_history,
+            )
 
-        return Bubble(result, default=self._default, history=new_history, error_history=new_error_history)
+        return Bubble(
+            result,
+            default=self._default,
+            history=new_history,
+            error_history=new_error_history,
+        )
 
     def __call__(self, *args, **kwargs):
         if self._error is not None:
-            new_history, new_error_history = self._record("call", {"args": args, "kwargs": kwargs}, None, self._error)
-            return Bubble(None, error=self._error, default=self._default, history=new_history, error_history=new_error_history)
+            new_history, new_error_history = self._record(
+                'call', {'args': args, 'kwargs': kwargs}, None, self._error
+            )
+            return Bubble(
+                None,
+                error=self._error,
+                default=self._default,
+                history=new_history,
+                error_history=new_error_history,
+            )
 
         try:
             result = self._value(*args, **kwargs)
-            new_history, new_error_history = self._record("call", {"args": args, "kwargs": kwargs}, result, None)
+            new_history, new_error_history = self._record(
+                'call', {'args': args, 'kwargs': kwargs}, result, None
+            )
         except Exception as e:
-            new_history, new_error_history = self._record("call", {"args": args, "kwargs": kwargs}, None, e)
-            return Bubble(None, error=e, default=self._default, history=new_history, error_history=new_error_history)
+            new_history, new_error_history = self._record(
+                'call', {'args': args, 'kwargs': kwargs}, None, e
+            )
+            return Bubble(
+                None,
+                error=e,
+                default=self._default,
+                history=new_history,
+                error_history=new_error_history,
+            )
 
-        return Bubble(result, default=self._default, history=new_history, error_history=new_error_history)
+        return Bubble(
+            result,
+            default=self._default,
+            history=new_history,
+            error_history=new_error_history,
+        )
 
-    def pop(self):
+    def kpop(self):
         """
         Explicitly resolve the chain (pop the bubble).
         Returns the underlying value if no error occurred, otherwise returns the provided default.
         """
         return self._default if self._error is not None else self._value
 
-    def get_history(self):
+    def _get_history(self):
         """Return the complete history of all operations."""
         return self._history
 
-    def get_error_history(self):
+    def _get_error_history(self):
         """
         Return the history up until the first error (inclusive).
         If no error occurred, this will be identical to the complete history.
         """
         return self._error_history
 
-    def debug(self):
+    def _debug(self):
         """Return a dict with the final value, error (if any), complete history, and error history."""
         return {
-            "final_value": self._default if self._error is not None else self._value,
-            "error": self._error,
-            "history": self._history,
-            "error_history": self._error_history,
+            'final_value': self._default if self._error is not None else self._value,
+            'error': self._error,
+            'history': self._history,
+            'error_history': self._error_history,
         }
 
     def __repr__(self):
         if self._error is not None:
-            return f"<Bubble Error: {self._error}>"
-        return f"<Bubble: {self._value!r}>"
+            return f'<Bubble Error: {self._error}>'
+        return f'<Bubble: {self._value!r}>'
 
 
 def k(value, default=None):
@@ -130,4 +197,4 @@ def k(value, default=None):
 
 
 def pop(bubble):
-    return bubble.pop()
+    return bubble.kpop()
